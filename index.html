@@ -1,0 +1,936 @@
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — Design Beyond Limits</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'],
+          display: ['Space Grotesk', 'sans-serif'],
+        },
+        colors: {
+          brand: {
+            50: '#f0f4ff', 100: '#e0e9ff', 200: '#c7d6fe', 300: '#a4b8fc',
+            400: '#8b93fa', 500: '#6d6ff7', 600: '#5b4ef0', 700: '#4c3ce0',
+            800: '#3f32b4', 900: '#352e8e', 950: '#1e1a5e',
+          },
+          accent: { 400: '#e879f9', 500: '#d946ef', 600: '#c026d3' }
+        },
+        animation: {
+          'blob': 'blob 14s infinite ease-in-out',
+          'blob-delay': 'blob 14s infinite ease-in-out -4s',
+          'blob-delay2': 'blob 14s infinite ease-in-out -8s',
+          'float': 'float 6s ease-in-out infinite',
+          'gradient-x': 'gradient-x 8s ease infinite',
+          'spin-slow': 'spin 18s linear infinite',
+          'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          'marquee': 'marquee 30s linear infinite',
+          'shimmer': 'shimmer 2.5s linear infinite',
+        },
+        keyframes: {
+          blob: {
+            '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+            '33%': { transform: 'translate(40px, -60px) scale(1.15)' },
+            '66%': { transform: 'translate(-30px, 30px) scale(0.9)' },
+          },
+          float: {
+            '0%, 100%': { transform: 'translateY(0)' },
+            '50%': { transform: 'translateY(-18px)' },
+          },
+          'gradient-x': {
+            '0%, 100%': { backgroundPosition: '0% 50%' },
+            '50%': { backgroundPosition: '100% 50%' },
+          },
+          marquee: {
+            '0%': { transform: 'translateX(0)' },
+            '100%': { transform: 'translateX(-50%)' },
+          },
+          shimmer: {
+            '0%': { backgroundPosition: '-200% 0' },
+            '100%': { backgroundPosition: '200% 0' },
+          }
+        },
+        backgroundSize: {
+          '200': '200% 200%',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  :root {
+    --glow: 0 0 40px rgba(109, 111, 247, 0.35);
+  }
+
+  * { -webkit-tap-highlight-color: transparent; }
+
+  body {
+    overflow-x: hidden;
+    background-color: #ffffff;
+    color: #0f172a;
+    transition: background-color .4s ease, color .4s ease;
+  }
+  html.dark body {
+    background-color: #05060f;
+    color: #e2e8f0;
+  }
+
+  /* Aurora background */
+  .aurora {
+    position: fixed; inset: 0; z-index: -2; overflow: hidden;
+    background: #ffffff;
+    transition: background .4s ease;
+  }
+  html.dark .aurora { background: #05060f; }
+  .aurora .blob {
+    position: absolute; border-radius: 9999px; filter: blur(90px); opacity: .55; mix-blend-mode: screen;
+  }
+  html:not(.dark) .aurora .blob { mix-blend-mode: multiply; opacity: .28; }
+  .blob-1 { width: 55vw; height: 55vw; background: #6d6ff7; top: -15vw; left: -12vw; }
+  .blob-2 { width: 48vw; height: 48vw; background: #d946ef; top: 10vh; right: -15vw; }
+  .blob-3 { width: 50vw; height: 50vw; background: #38bdf8; bottom: -20vw; left: 30vw; }
+
+  /* Glass card */
+  .glass {
+    background: rgba(255,255,255,.65);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255,255,255,.6);
+    box-shadow: 0 8px 32px rgba(15,23,42,.08), inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  html.dark .glass {
+    background: rgba(15,18,38,.55);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.06);
+  }
+
+  /* Gradient text */
+  .grad-text {
+    background: linear-gradient(90deg,#6d6ff7,#d946ef,#38bdf8,#6d6ff7);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-x 6s ease infinite;
+  }
+
+  /* Shimmer button */
+  .btn-shimmer { position: relative; overflow: hidden; }
+  .btn-shimmer::after {
+    content: ""; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent);
+    transform: skewX(-20deg); animation: shimmer 3s infinite;
+  }
+
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(34px); transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* Tilt card */
+  .tilt { transform-style: preserve-3d; transition: transform .15s ease-out; will-change: transform; }
+  .tilt-inner { transform: translateZ(24px); }
+
+  /* Marquee */
+  .marquee-track { display: flex; width: max-content; animation: marquee 32s linear infinite; }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: linear-gradient(#6d6ff7,#d946ef); border-radius: 99px; border: 2px solid transparent; background-clip: content-box; }
+
+  /* Range slider */
+  input[type=range] { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 99px; background: linear-gradient(90deg,#6d6ff7,#d946ef); outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 3px solid #6d6ff7; cursor: pointer; box-shadow: 0 4px 12px rgba(109,111,247,.5); }
+  input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 3px solid #6d6ff7; cursor: pointer; }
+
+  /* Toast */
+  .toast { transform: translateX(120%); transition: transform .5s cubic-bezier(.16,1,.3,1); }
+  .toast.show { transform: translateX(0); }
+
+  /* Cursor glow (desktop) */
+  #cursor-glow {
+    position: fixed; width: 480px; height: 480px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(109,111,247,.14), transparent 65%);
+    pointer-events: none; z-index: 1; transform: translate(-50%,-50%);
+    transition: opacity .3s; display: none;
+  }
+  @media (hover:hover) and (pointer:fine) { #cursor-glow { display: block; } }
+
+  /* FAQ */
+  .faq-body { max-height: 0; overflow: hidden; transition: max-height .45s cubic-bezier(.16,1,.3,1); }
+  .faq-item.open .faq-body { max-height: 300px; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+  /* Hero mock window */
+  .window-bar { height: 38px; display: flex; align-items: center; gap: 7px; padding: 0 16px; border-bottom: 1px solid rgba(148,163,184,.2); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+</style>
+</head>
+<body class="antialiased font-sans selection:bg-brand-500 selection:text-white">
+
+<!-- Aurora background -->
+<div class="aurora" aria-hidden="true">
+  <div class="blob blob-1 animate-blob"></div>
+  <div class="blob blob-2 animate-blob-delay"></div>
+  <div class="blob blob-3 animate-blob-delay2"></div>
+</div>
+<div id="cursor-glow" aria-hidden="true"></div>
+
+<!-- ================= NAVBAR ================= -->
+<header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+  <nav class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="mt-4 glass rounded-2xl px-5 py-3.5 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-2.5 group">
+        <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/30 group-hover:scale-110 transition-transform">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </span>
+        <span class="font-display font-bold text-xl tracking-tight">Nexus</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-1">
+        <a href="#features" class="px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 transition">Features</a>
+        <a href="#showcase" class="px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 transition">Showcase</a>
+        <a href="#pricing" class="px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 transition">Pricing</a>
+        <a href="#faq" class="px-4 py-2 rounded-xl text-sm font-medium hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-300 transition">FAQ</a>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="theme-toggle" aria-label="Toggle theme" class="w-10 h-10 rounded-xl glass flex items-center justify-center hover:scale-105 transition">
+          <svg id="sun-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="moon-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <a href="#cta" class="hidden sm:block btn-shimmer px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-accent-500 text-white text-sm font-semibold shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 hover:-translate-y-0.5 transition-all">Get Started</a>
+        <button id="menu-btn" aria-label="Open menu" class="md:hidden w-10 h-10 rounded-xl glass flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden md:hidden max-w-7xl mx-auto px-5 sm:px-6">
+    <div class="glass rounded-2xl mt-2 px-5 py-4 flex flex-col gap-1">
+      <a href="#features" class="mobile-link px-4 py-3 rounded-xl text-sm font-medium hover:bg-brand-500/10">Features</a>
+      <a href="#showcase" class="mobile-link px-4 py-3 rounded-xl text-sm font-medium hover:bg-brand-500/10">Showcase</a>
+      <a href="#pricing" class="mobile-link px-4 py-3 rounded-xl text-sm font-medium hover:bg-brand-500/10">Pricing</a>
+      <a href="#faq" class="mobile-link px-4 py-3 rounded-xl text-sm font-medium hover:bg-brand-500/10">FAQ</a>
+      <a href="#cta" class="mobile-link mt-2 px-4 py-3 rounded-xl text-sm font-semibold text-center bg-gradient-to-r from-brand-600 to-accent-500 text-white">Get Started</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ================= HERO ================= -->
+<section class="relative pt-36 pb-20 sm:pt-44 sm:pb-28">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-14 items-center">
+      <div class="text-center lg:text-left">
+        <div class="reveal inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-semibold text-brand-600 dark:text-brand-300 mb-7">
+          <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
+          v3.0 is here — AI-powered workflows
+        </div>
+        <h1 class="reveal font-display text-4xl sm:text-6xl lg:text-7xl font-bold leading-[1.05] tracking-tight">
+          Design <span class="grad-text">beyond</span><br>the limits
+        </h1>
+        <p class="reveal mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+          Nexus is the all-in-one platform that helps modern teams craft stunning interfaces, ship faster, and delight users at scale.
+        </p>
+        <div class="reveal mt-9 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <a href="#cta" class="btn-shimmer inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-500 text-white font-semibold shadow-xl shadow-brand-500/35 hover:shadow-brand-500/55 hover:-translate-y-0.5 transition-all">
+            Start free trial
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </a>
+          <button id="demo-btn" class="inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-2xl glass font-semibold hover:-translate-y-0.5 transition-all">
+            <span class="w-8 h-8 rounded-full bg-brand-500/15 flex items-center justify-center">
+              <svg class="w-3.5 h-3.5 text-brand-600 dark:text-brand-300 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </span>
+            Watch demo
+          </button>
+        </div>
+        <div class="reveal mt-10 flex items-center gap-6 justify-center lg:justify-start">
+          <div class="flex -space-x-3">
+            <img src="https://i.pravatar.cc/80?img=12" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 object-cover">
+            <img src="https://i.pravatar.cc/80?img=32" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 object-cover">
+            <img src="https://i.pravatar.cc/80?img=47" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 object-cover">
+            <img src="https://i.pravatar.cc/80?img=5" alt="User" class="w-10 h-10 rounded-full border-2 border-white dark:border-slate-800 object-cover">
+          </div>
+          <div class="text-sm">
+            <div class="flex text-amber-400">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400"><span class="font-bold text-slate-900 dark:text-white">4.9/5</span> from 12,000+ teams</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero visual -->
+      <div class="reveal relative animate-float">
+        <div class="absolute -inset-4 bg-gradient-to-r from-brand-500/30 to-accent-500/30 rounded-[2rem] blur-2xl"></div>
+        <div class="relative glass rounded-3xl overflow-hidden shadow-2xl">
+          <div class="window-bar">
+            <span class="dot bg-[#ff5f57]"></span><span class="dot bg-[#febc2e]"></span><span class="dot bg-[#28c840]"></span>
+            <span class="ml-3 text-xs font-medium text-slate-500 dark:text-slate-400">nexus.app/dashboard</span>
+          </div>
+          <div class="p-6 space-y-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Total revenue</p>
+                <p class="text-2xl font-display font-bold">$<span id="rev-counter">0</span></p>
+              </div>
+              <span class="text-xs font-semibold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">+24.8%</span>
+            </div>
+            <!-- Mini bar chart -->
+            <div class="flex items-end gap-2 h-32">
+              <div class="flex-1 bg-gradient-to-t from-brand-600 to-brand-400 rounded-t-lg h-[40%]"></div>
+              <div class="flex-1 bg-gradient-to-t from-brand-600 to-brand-400 rounded-t-lg h-[62%]"></div>
+              <div class="flex-1 bg-gradient-to-t from-brand-600 to-brand-400 rounded-t-lg h-[48%]"></div>
+              <div class="flex-1 bg-gradient-to-t from-accent-500 to-fuchsia-400 rounded-t-lg h-[85%]"></div>
+              <div class="flex-1 bg-gradient-to-t from-brand-600 to-brand-400 rounded-t-lg h-[56%]"></div>
+              <div class="flex-1 bg-gradient-to-t from-accent-500 to-fuchsia-400 rounded-t-lg h-[95%]"></div>
+              <div class="flex-1 bg-gradient-to-t from-brand-600 to-brand-400 rounded-t-lg h-[70%]"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="glass rounded-xl p-3">
+                <div class="w-8 h-8 rounded-lg bg-brand-500/15 flex items-center justify-center mb-2">
+                  <svg class="w-4 h-4 text-brand-600 dark:text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Users</p>
+                <p class="font-bold">48.2k</p>
+              </div>
+              <div class="glass rounded-xl p-3">
+                <div class="w-8 h-8 rounded-lg bg-accent-500/15 flex items-center justify-center mb-2">
+                  <svg class="w-4 h-4 text-accent-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Sales</p>
+                <p class="font-bold">9,410</p>
+              </div>
+              <div class="glass rounded-xl p-3">
+                <div class="w-8 h-8 rounded-lg bg-sky-500/15 flex items-center justify-center mb-2">
+                  <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Growth</p>
+                <p class="font-bold">+32%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Floating badge -->
+        <div class="absolute -bottom-5 -left-5 glass rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl animate-float" style="animation-delay:-2s">
+          <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Deploy status</p>
+            <p class="text-sm font-bold">All systems live</p>
+          </div>
+        </div>
+        <div class="absolute -top-5 -right-5 glass rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl animate-float" style="animation-delay:-4s">
+          <span class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Avg. deploy</p>
+            <p class="text-sm font-bold">38 seconds</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LOGO MARQUEE ================= -->
+<section class="py-10">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <p class="text-center text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-7">Trusted by teams at</p>
+    <div class="glass rounded-2xl py-5 overflow-hidden relative">
+      <div class="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white dark:from-[#0a0d1f] to-transparent z-10"></div>
+      <div class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white dark:from-[#0a0d1f] to-transparent z-10"></div>
+      <div class="marquee-track gap-14 pr-14">
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Vertex</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Lumina</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Quantix</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Solstice</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Apex</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Nimbus</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Orbit</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Vertex</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Lumina</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Quantix</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Solstice</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Apex</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Nimbus</span>
+        <span class="font-display font-bold text-xl text-slate-400 dark:text-slate-500 whitespace-nowrap">Orbit</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURES ================= -->
+<section id="features" class="py-24 sm:py-32">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <p class="reveal text-sm font-bold uppercase tracking-widest grad-text mb-3">Features</p>
+      <h2 class="reveal font-display text-4xl sm:text-5xl font-bold tracking-tight">Everything you need, nothing you don't</h2>
+      <p class="reveal mt-5 text-lg text-slate-600 dark:text-slate-300">Powerful primitives, thoughtful defaults, and delightful details — engineered for teams that care about craft.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Feature 1 -->
+      <div class="reveal tilt glass rounded-3xl p-8 group hover:shadow-2xl hover:shadow-brand-500/10 transition-shadow">
+        <div class="tilt-inner">
+          <div class="w-13 h-13 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-brand-500/30 mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Design System</h3>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Hundreds of accessible, themeable components with tokens baked in. Consistency at the speed of thought.</p>
+        </div>
+      </div>
+      <!-- Feature 2 -->
+      <div class="reveal tilt glass rounded-3xl p-8 group hover:shadow-2xl hover:shadow-accent-500/10 transition-shadow" style="transition-delay:.08s">
+        <div class="tilt-inner">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-accent-500/30 mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Realtime Sync</h3>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Multiplayer editing with sub-50ms latency. See cursors, comments, and changes as they happen.</p>
+        </div>
+      </div>
+      <!-- Feature 3 -->
+      <div class="reveal tilt glass rounded-3xl p-8 group hover:shadow-2xl hover:shadow-sky-500/10 transition-shadow" style="transition-delay:.16s">
+        <div class="tilt-inner">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-sky-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-sky-500/30 mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Enterprise Security</h3>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">SOC 2 Type II, SSO/SAML, granular permissions, and regional data residency out of the box.</p>
+        </div>
+      </div>
+      <!-- Feature 4 -->
+      <div class="reveal tilt glass rounded-3xl p-8 group hover:shadow-2xl hover:shadow-emerald-500/10 transition-shadow">
+        <div class="tilt-inner">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-500/30 mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Clean Code Export</h3>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Turn any design into production-ready React, Vue, or SwiftUI. Pixel-perfect, lint-clean, yours forever.</p>
+        </div>
+      </div>
+      <!-- Feature 5 -->
+      <div class="reveal tilt glass rounded-3xl p-8 group hover:shadow-2xl hover:shadow-amber-500/10 transition-shadow" style="transition-delay:.08s">
+        <div class="tilt-inner">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30 mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">AI Copilot</h3>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Generate layouts, suggest improvements, and write microcopy with an assistant trained on design best practices.</p>
+        </div>
+      </div>
+      <!-- Feature 6 -->
+      <div class="reveal tilt glass rounded-3xl p-8 group hover:shadow-2xl hover:shadow-violet-500/10 transition-shadow" style="transition-delay:.16s">
+        <div class="tilt-inner">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30 mb-6 group-hover:scale-110 transition-transform">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/></svg>
+          </div>
+          <h3 class="font-display text-xl font-bold mb-3">Insights &amp; Analytics</h3>
+          <p class="text-slate-600 dark:text-slate-300 leading-relaxed">Understand how users experience your product with heatmaps, funnels, and session intelligence.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SHOWCASE / STATS ================= -->
+<section id="showcase" class="py-24 sm:py-32">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="reveal relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-brand-700 via-brand-800 to-accent-600 p-10 sm:p-16 lg:p-20 text-white">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+      <div class="absolute bottom-0 left-0 w-80 h-80 bg-accent-400/30 rounded-full blur-3xl translate-y-1/3 -translate-x-1/4"></div>
+      <div class="relative grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight leading-tight">Numbers that speak louder than promises</h2>
+          <p class="mt-5 text-lg text-white/80 leading-relaxed">From two-person startups to Fortune 500s, teams rely on Nexus every day to turn ambitious ideas into products people love.</p>
+          <a href="#pricing" class="btn-shimmer mt-8 inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-brand-700 font-semibold shadow-xl hover:-translate-y-0.5 transition-all">
+            Explore plans
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="glass rounded-2xl p-6" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)">
+            <p class="text-4xl sm:text-5xl font-display font-bold"><span class="stat" data-target="250">0</span>k+</p>
+            <p class="mt-2 text-sm text-white/75">Active teams</p>
+          </div>
+          <div class="glass rounded-2xl p-6" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)">
+            <p class="text-4xl sm:text-5xl font-display font-bold"><span class="stat" data-target="99.99" data-decimals="2">0</span>%</p>
+            <p class="mt-2 text-sm text-white/75">Uptime SLA</p>
+          </div>
+          <div class="glass rounded-2xl p-6" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)">
+            <p class="text-4xl sm:text-5xl font-display font-bold"><span class="stat" data-target="4.2">0</span>M</p>
+            <p class="mt-2 text-sm text-white/75">Designs shipped</p>
+          </div>
+          <div class="glass rounded-2xl p-6" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2)">
+            <p class="text-4xl sm:text-5xl font-display font-bold"><span class="stat" data-target="140">0</span>+</p>
+            <p class="mt-2 text-sm text-white/75">Countries</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<section class="py-24 sm:py-32">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-14">
+      <p class="reveal text-sm font-bold uppercase tracking-widest grad-text mb-3">Testimonials</p>
+      <h2 class="reveal font-display text-4xl sm:text-5xl font-bold tracking-tight">Loved by designers &amp; developers</h2>
+    </div>
+    <div class="reveal relative">
+      <div id="testi-track" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6" style="scrollbar-width:none">
+        <!-- cards injected + static -->
+        <div class="snap-center shrink-0 w-[340px] sm:w-[400px] glass rounded-3xl p-8">
+          <div class="flex text-amber-400 mb-4">★★★★★</div>
+          <p class="text-lg leading-relaxed">"Nexus cut our design-to-ship time by 60%. The component system is the best I've used in a decade of product work."</p>
+          <div class="mt-6 flex items-center gap-4">
+            <img src="https://i.pravatar.cc/96?img=44" alt="Amara Osei" class="w-12 h-12 rounded-full object-cover">
+            <div><p class="font-bold">Amara Osei</p><p class="text-sm text-slate-500 dark:text-slate-400">Head of Design, Vertex</p></div>
+          </div>
+        </div>
+        <div class="snap-center shrink-0 w-[340px] sm:w-[400px] glass rounded-3xl p-8">
+          <div class="flex text-amber-400 mb-4">★★★★★</div>
+          <p class="text-lg leading-relaxed">"The code export is genuinely production-grade. We deleted our entire hand-off process and nobody misses it."</p>
+          <div class="mt-6 flex items-center gap-4">
+            <img src="https://i.pravatar.cc/96?img=13" alt="Daniel Reyes" class="w-12 h-12 rounded-full object-cover">
+            <div><p class="font-bold">Daniel Reyes</p><p class="text-sm text-slate-500 dark:text-slate-400">Staff Engineer, Lumina</p></div>
+          </div>
+        </div>
+        <div class="snap-center shrink-0 w-[340px] sm:w-[400px] glass rounded-3xl p-8">
+          <div class="flex text-amber-400 mb-4">★★★★★</div>
+          <p class="text-lg leading-relaxed">"Realtime multiplayer changed how our team works. It feels like the whole company is in one room, one canvas."</p>
+          <div class="mt-6 flex items-center gap-4">
+            <img src="https://i.pravatar.cc/96?img=26" alt="Yuki Tanaka" class="w-12 h-12 rounded-full object-cover">
+            <div><p class="font-bold">Yuki Tanaka</p><p class="text-sm text-slate-500 dark:text-slate-400">Product Lead, Quantix</p></div>
+          </div>
+        </div>
+        <div class="snap-center shrink-0 w-[340px] sm:w-[400px] glass rounded-3xl p-8">
+          <div class="flex text-amber-400 mb-4">★★★★★</div>
+          <p class="text-lg leading-relaxed">"Support is unreal — median response under 3 minutes. Security review was the smoothest we've ever run."</p>
+          <div class="mt-6 flex items-center gap-4">
+            <img src="https://i.pravatar.cc/96?img=60" alt="Priya Nair" class="w-12 h-12 rounded-full object-cover">
+            <div><p class="font-bold">Priya Nair</p><p class="text-sm text-slate-500 dark:text-slate-400">CTO, Solstice</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center gap-3 mt-6">
+        <button id="testi-prev" aria-label="Previous" class="w-11 h-11 rounded-xl glass flex items-center justify-center hover:bg-brand-500/10 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button id="testi-next" aria-label="Next" class="w-11 h-11 rounded-xl glass flex items-center justify-center hover:bg-brand-500/10 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<section id="pricing" class="py-24 sm:py-32">
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="text-center max-w-3xl mx-auto mb-12">
+      <p class="reveal text-sm font-bold uppercase tracking-widest grad-text mb-3">Pricing</p>
+      <h2 class="reveal font-display text-4xl sm:text-5xl font-bold tracking-tight">Simple pricing, serious value</h2>
+      <div class="reveal mt-8 inline-flex items-center gap-1 glass rounded-full p-1">
+        <button id="bill-monthly" class="px-5 py-2 rounded-full text-sm font-semibold transition-all bg-brand-600 text-white shadow-lg">Monthly</button>
+        <button id="bill-yearly" class="px-5 py-2 rounded-full text-sm font-semibold transition-all text-slate-600 dark:text-slate-300">Yearly <span class="ml-1 text-xs font-bold text-emerald-500">−20%</span></button>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto items-stretch">
+      <!-- Starter -->
+      <div class="reveal glass rounded-3xl p-8 flex flex-col">
+        <h3 class="font-display text-xl font-bold">Starter</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">For individuals exploring Nexus</p>
+        <p class="mt-6"><span class="text-5xl font-display font-bold">$<span class="price" data-monthly="0" data-yearly="0">0</span></span><span class="text-slate-500 dark:text-slate-400 font-medium">/mo</span></p>
+        <ul class="mt-8 space-y-3.5 text-sm flex-1">
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>1 project, 3 editors</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>Core component library</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>Community support</li>
+        </ul>
+        <button class="plan-btn mt-8 w-full py-3.5 rounded-2xl glass font-semibold hover:-translate-y-0.5 transition-all">Start for free</button>
+      </div>
+      <!-- Pro (featured) -->
+      <div class="reveal relative md:-mt-6 md:mb-0" style="transition-delay:.1s">
+        <div class="absolute -top-4 left-1/2 -translate-x-1/2 z-10 px-4 py-1.5 rounded-full bg-gradient-to-r from-brand-600 to-accent-500 text-white text-xs font-bold shadow-lg">MOST POPULAR</div>
+        <div class="h-full rounded-3xl p-[2px] bg-gradient-to-b from-brand-500 to-accent-500 shadow-2xl shadow-brand-500/25">
+          <div class="h-full rounded-[22px] bg-white dark:bg-slate-900/90 backdrop-blur-xl p-8 flex flex-col">
+            <h3 class="font-display text-xl font-bold">Pro</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">For growing product teams</p>
+            <p class="mt-6"><span class="text-5xl font-display font-bold">$<span class="price" data-monthly="24" data-yearly="19">24</span></span><span class="text-slate-500 dark:text-slate-400 font-medium">/mo</span></p>
+            <ul class="mt-8 space-y-3.5 text-sm flex-1">
+              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>Unlimited projects &amp; editors</li>
+              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>Full design system + tokens</li>
+              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>AI Copilot &amp; code export</li>
+              <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>Priority support</li>
+            </ul>
+            <button class="plan-btn mt-8 w-full py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-500 text-white font-semibold shadow-lg shadow-brand-500/30 hover:-translate-y-0.5 transition-all">Start 14-day trial</button>
+          </div>
+        </div>
+      </div>
+      <!-- Enterprise -->
+      <div class="reveal glass rounded-3xl p-8 flex flex-col" style="transition-delay:.2s">
+        <h3 class="font-display text-xl font-bold">Enterprise</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">For organizations at scale</p>
+        <p class="mt-6"><span class="text-5xl font-display font-bold">$<span class="price" data-monthly="79" data-yearly="63">79</span></span><span class="text-slate-500 dark:text-slate-400 font-medium">/mo</span></p>
+        <ul class="mt-8 space-y-3.5 text-sm flex-1">
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>Everything in Pro</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>SSO/SAML &amp; SCIM</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>Dedicated success manager</li>
+          <li class="flex items-center gap-3"><svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>99.99% uptime SLA</li>
+        </ul>
+        <button class="plan-btn mt-8 w-full py-3.5 rounded-2xl glass font-semibold hover:-translate-y-0.5 transition-all">Talk to sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section id="faq" class="py-24 sm:py-32">
+  <div class="max-w-3xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="text-center mb-14">
+      <p class="reveal text-sm font-bold uppercase tracking-widest grad-text mb-3">FAQ</p>
+      <h2 class="reveal font-display text-4xl sm:text-5xl font-bold tracking-tight">Questions, answered</h2>
+    </div>
+    <div class="space-y-4">
+      <div class="reveal faq-item glass rounded-2xl">
+        <button class="faq-head w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold">
+          <span>Can I try Nexus before paying?</span>
+          <span class="faq-icon w-8 h-8 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 transition-transform duration-300">
+            <svg class="w-4 h-4 text-brand-600 dark:text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M12 4v16m8-8H4"/></svg>
+          </span>
+        </button>
+        <div class="faq-body px-6"><p class="pb-5 text-slate-600 dark:text-slate-300">Absolutely. The Starter plan is free forever, and every Pro trial includes 14 days of full access — no credit card required.</p></div>
+      </div>
+      <div class="reveal faq-item glass rounded-2xl" style="transition-delay:.06s">
+        <button class="faq-head w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold">
+          <span>How does the code export work?</span>
+          <span class="faq-icon w-8 h-8 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 transition-transform duration-300">
+            <svg class="w-4 h-4 text-brand-600 dark:text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M12 4v16m8-8H4"/></svg>
+          </span>
+        </button>
+        <div class="faq-body px-6"><p class="pb-5 text-slate-600 dark:text-slate-300">Select any frame and export to React, Vue, or SwiftUI. The output is clean, typed, and respects your design tokens — ready to commit straight to your repo.</p></div>
+      </div>
+      <div class="reveal faq-item glass rounded-2xl" style="transition-delay:.12s">
+        <button class="faq-head w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold">
+          <span>Is my data secure?</span>
+          <span class="faq-icon w-8 h-8 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 transition-transform duration-300">
+            <svg class="w-4 h-4 text-brand-600 dark:text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M12 4v16m8-8H4"/></svg>
+          </span>
+        </button>
+        <div class="faq-body px-6"><p class="pb-5 text-slate-600 dark:text-slate-300">Yes — we're SOC 2 Type II certified with encryption in transit and at rest, SSO/SAML, granular permissions, and optional regional data residency.</p></div>
+      </div>
+      <div class="reveal faq-item glass rounded-2xl" style="transition-delay:.18s">
+        <button class="faq-head w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold">
+          <span>Can I cancel anytime?</span>
+          <span class="faq-icon w-8 h-8 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 transition-transform duration-300">
+            <svg class="w-4 h-4 text-brand-600 dark:text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M12 4v16m8-8H4"/></svg>
+          </span>
+        </button>
+        <div class="faq-body px-6"><p class="pb-5 text-slate-600 dark:text-slate-300">Of course. Cancel in one click from your dashboard — you keep access until the end of your billing period, and your data stays exportable for 90 days.</p></div>
+      </div>
+      <div class="reveal faq-item glass rounded-2xl" style="transition-delay:.24s">
+        <button class="faq-head w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold">
+          <span>Do you offer discounts for students or nonprofits?</span>
+          <span class="faq-icon w-8 h-8 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0 transition-transform duration-300">
+            <svg class="w-4 h-4 text-brand-600 dark:text-brand-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M12 4v16m8-8H4"/></svg>
+          </span>
+        </button>
+        <div class="faq-body px-6"><p class="pb-5 text-slate-600 dark:text-slate-300">We do — verified students, educators, and registered nonprofits get 50% off Pro. Reach out to our team with proof of status and we'll set you up.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section id="cta" class="py-24 sm:py-32">
+  <div class="max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
+    <div class="reveal relative overflow-hidden rounded-[2.5rem] glass p-10 sm:p-16 text-center">
+      <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[30rem] h-[30rem] bg-gradient-to-r from-brand-500/25 to-accent-500/25 rounded-full blur-3xl"></div>
+      <div class="relative">
+        <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight">Ready to build something <span class="grad-text">remarkable</span>?</h2>
+        <p class="mt-5 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">Join 250,000+ teams shipping beautiful products with Nexus. Free to start — upgrade when you're ready.</p>
+        <form id="cta-form" class="mt-9 max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+          <input type="email" id="cta-email" required placeholder="Enter your work email" class="flex-1 px-5 py-3.5 rounded-2xl glass border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium bg-white/70 dark:bg-slate-900/60">
+          <button type="submit" class="btn-shimmer px-7 py-3.5 rounded-2xl bg-gradient-to-r from-brand-600 to-accent-500 text-white font-semibold shadow-lg shadow-brand-500/30 hover:-translate-y-0.5 transition-all">Get started</button>
+        </form>
+        <p class="mt-4 text-xs text-slate-500 dark:text-slate-400">No credit card required · Cancel anytime</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="relative border-t border-slate-200 dark:border-slate-800/60">
+  <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-500/50 to-transparent"></div>
+  <div class="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-14">
+    <div class="grid md:grid-cols-4 gap-10">
+      <div class="md:col-span-1">
+        <a href="#" class="flex items-center gap-2.5">
+          <span class="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </span>
+          <span class="font-display font-bold text-xl">Nexus</span>
+        </a>
+        <p class="mt-4 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">The design platform for teams who refuse to ship mediocre.</p>
+        <div class="flex gap-3 mt-5">
+          <a href="#" aria-label="Twitter" class="w-9 h-9 rounded-xl glass flex items-center justify-center hover:text-brand-500 hover:-translate-y-0.5 transition"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="GitHub" class="w-9 h-9 rounded-xl glass flex items-center justify-center hover:text-brand-500 hover:-translate-y-0.5 transition"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+          <a href="#" aria-label="Dribbble" class="w-9 h-9 rounded-xl glass flex items-center justify-center hover:text-brand-500 hover:-translate-y-0.5 transition"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308 2.3-1.555 3.936-4.02 4.395-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4 1.73 1.358 3.92 2.166 6.29 2.166 1.42 0 2.77-.29 4-.816zm-11.62-2.58c.232-.4 3.045-5.055 8.332-6.765.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 2.206 11.71 1.756 11.7l-.004.312c0 2.633.998 5.037 2.634 6.855zm-2.42-8.955c.46.008 4.683.026 9.477-1.248-1.698-3.018-3.53-5.558-3.8-5.928-2.868 1.35-5.01 3.99-5.676 7.17zM9.6 2.052c.282.38 2.145 2.914 3.822 6 3.645-1.365 5.19-3.44 5.373-3.702-1.81-1.61-4.19-2.586-6.795-2.586-.825 0-1.63.1-2.4.285zm10.335 3.483c-.218.29-1.935 2.493-5.724 4.04.24.49.47.985.68 1.486.08.18.15.36.22.53 3.41-.43 6.8.26 7.14.33-.02-2.42-.88-4.64-2.31-6.38z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <p class="font-bold mb-4">Product</p>
+        <ul class="space-y-2.5 text-sm text-slate-500 dark:text-slate-400">
+          <li><a href="#features" class="hover:text-brand-500 transition">Features</a></li>
+          <li><a href="#pricing" class="hover:text-brand-500 transition">Pricing</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Changelog</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Integrations</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-bold mb-4">Company</p>
+        <ul class="space-y-2.5 text-sm text-slate-500 dark:text-slate-400">
+          <li><a href="#" class="hover:text-brand-500 transition">About</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Blog</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Careers</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-bold mb-4">Resources</p>
+        <ul class="space-y-2.5 text-sm text-slate-500 dark:text-slate-400">
+          <li><a href="#" class="hover:text-brand-500 transition">Documentation</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Community</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Status</a></li>
+          <li><a href="#" class="hover:text-brand-500 transition">Security</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500 dark:text-slate-400">
+      <p>© <span id="year"></span> Nexus Labs, Inc. All rights reserved.</p>
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-brand-500 transition">Privacy</a>
+        <a href="#" class="hover:text-brand-500 transition">Terms</a>
+        <a href="#" class="hover:text-brand-500 transition">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div id="toast" class="toast fixed bottom-6 right-6 z-[100] flex items-center gap-3 glass rounded-2xl px-5 py-4 shadow-2xl max-w-sm">
+  <span class="w-9 h-9 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" d="M5 13l4 4L19 7"/></svg>
+  </span>
+  <div>
+    <p class="font-bold text-sm" id="toast-title">Success!</p>
+    <p class="text-xs text-slate-500 dark:text-slate-400" id="toast-msg">You're on the list.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Theme toggle ---------- */
+  const root = document.documentElement;
+  const sunIcon = document.getElementById('sun-icon');
+  const moonIcon = document.getElementById('moon-icon');
+  const saved = localStorage.getItem('nexus-theme');
+  if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    root.classList.add('dark');
+  }
+  function syncIcons() {
+    const dark = root.classList.contains('dark');
+    sunIcon.classList.toggle('hidden', dark);
+    moonIcon.classList.toggle('hidden', !dark);
+  }
+  syncIcons();
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    root.classList.toggle('dark');
+    localStorage.setItem('nexus-theme', root.classList.contains('dark') ? 'dark' : 'light');
+    syncIcons();
+  });
+
+  /* ---------- Navbar shadow on scroll ---------- */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.style.opacity = window.scrollY > 40 ? '0.92' : '1';
+  }, { passive: true });
+
+  /* ---------- Mobile menu ---------- */
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+  mobileMenu.querySelectorAll('.mobile-link').forEach(l =>
+    l.addEventListener('click', () => mobileMenu.classList.add('hidden'))
+  );
+
+  /* ---------- Reveal on scroll ---------- */
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); revealObserver.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  /* ---------- Animated counters ---------- */
+  function animateCounter(el, target, decimals = 0, duration = 1800) {
+    const start = performance.now();
+    function tick(now) {
+      const p = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = (target * eased).toFixed(decimals);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  const statObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        animateCounter(el, parseFloat(el.dataset.target), parseInt(el.dataset.decimals || 0));
+        statObserver.unobserve(el);
+      }
+    });
+  }, { threshold: 0.6 });
+  document.querySelectorAll('.stat').forEach(el => statObserver.observe(el));
+
+  // Hero revenue counter
+  const revObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(document.getElementById('rev-counter'), 128540, 0);
+        revObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.4 });
+  revObserver.observe(document.getElementById('rev-counter'));
+
+  /* ---------- Card tilt effect ---------- */
+  if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    document.querySelectorAll('.tilt').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(900px) rotateX(${-y * 7}deg) rotateY(${x * 7}deg) translateY(-4px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  /* ---------- Cursor glow ---------- */
+  const glow = document.getElementById('cursor-glow');
+  if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
+    let gx = -500, gy = -500, tx = -500, ty = -500;
+    window.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+    (function loop() {
+      gx += (tx - gx) * 0.12; gy += (ty - gy) * 0.12;
+      glow.style.left = gx + 'px'; glow.style.top = gy + 'px';
+      requestAnimationFrame(loop);
+    })();
+  }
+
+  /* ---------- Testimonials carousel ---------- */
+  const track = document.getElementById('testi-track');
+  const step = () => (track.querySelector('div')?.offsetWidth || 360) + 24;
+  document.getElementById('testi-next').addEventListener('click', () =>
+    track.scrollBy({ left: step(), behavior: 'smooth' }));
+  document.getElementById('testi-prev').addEventListener('click', () =>
+    track.scrollBy({ left: -step(), behavior: 'smooth' }));
+
+  /* ---------- Pricing toggle ---------- */
+  const mBtn = document.getElementById('bill-monthly');
+  const yBtn = document.getElementById('bill-yearly');
+  function setBilling(yearly) {
+    mBtn.className = yearly
+      ? 'px-5 py-2 rounded-full text-sm font-semibold transition-all text-slate-600 dark:text-slate-300'
+      : 'px-5 py-2 rounded-full text-sm font-semibold transition-all bg-brand-600 text-white shadow-lg';
+    yBtn.className = yearly
+      ? 'px-5 py-2 rounded-full text-sm font-semibold transition-all bg-brand-600 text-white shadow-lg'
+      : 'px-5 py-2 rounded-full text-sm font-semibold transition-all text-slate-600 dark:text-slate-300';
+    document.querySelectorAll('.price').forEach(p => {
+      const v = yearly ? p.dataset.yearly : p.dataset.monthly;
+      p.style.transition = 'none';
+      p.style.opacity = '0';
+      p.style.transform = 'translateY(6px)';
+      setTimeout(() => {
+        p.textContent = v;
+        p.style.transition = 'opacity .35s ease, transform .35s ease';
+        p.style.opacity = '1';
+        p.style.transform = 'translateY(0)';
+      }, 120);
+    });
+  }
+  mBtn.addEventListener('click', () => setBilling(false));
+  yBtn.addEventListener('click', () => setBilling(true));
+
+  /* ---------- FAQ accordion ---------- */
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-head').addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(o => o.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  /* ---------- Toast ---------- */
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(title, msg) {
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-msg').textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+  }
+
+  /* ---------- CTA form ---------- */
+  document.getElementById('cta-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = document.getElementById('cta-email');
+    if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+      showToast('Hmm, check that email', 'Please enter a valid email address.');
+      email.focus();
+      return;
+    }
+    showToast("You're in! 🎉", 'Check your inbox — your workspace invite is on the way.');
+    email.value = '';
+  });
+
+  /* ---------- Plan buttons & demo ---------- */
+  document.querySelectorAll('.plan-btn').forEach(b =>
+    b.addEventListener('click', () => showToast('Great choice!', 'Redirecting you to secure checkout…'))
+  );
+  document.getElementById('demo-btn').addEventListener('click', () =>
+    showToast('Demo coming right up', 'Loading the 2-minute product tour…')
+  );
+
+  /* ---------- Footer year ---------- */
+  document.getElementById('year').textContent = new Date().getFullYear();
+})();
+</script>
+</body>
+</html>
